@@ -1,0 +1,21 @@
+# 扫描产物（含本机路径与已装技能清单，不要提交）
+sk.json
+market.json
+report.html
+*.report.html
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 临时的下载目录
+_work/

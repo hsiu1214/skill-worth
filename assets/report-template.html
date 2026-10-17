@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skill 体检报告</title>
+<style>
+:root{
+  --bg:#f6f7f9; --card:#ffffff; --ink:#16181d; --ink2:#5b6270; --ink3:#8b93a1;
+  --line:#e5e8ee; --green:#0f9d58; --green-bg:#e8f6ee;
+  --amber:#c2751a; --amber-bg:#fdf3e2;
+  --red:#d93a3a; --red-bg:#fdeaea;
+  --blue:#2b5fd9;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased; padding:40px 20px 80px;
+}
+.wrap{max-width:920px;margin:0 auto}
+
+/* 头部 */
+.eyebrow{
+  display:inline-block;font-size:12.5px;letter-spacing:.12em;color:var(--blue);
+  font-weight:600;margin-bottom:14px;text-transform:uppercase;
+}
+h1{font-size:31px;line-height:1.35;font-weight:700;letter-spacing:-.01em;margin-bottom:14px}
+h1 em{font-style:normal;border-bottom:3px solid #ffd84d;padding-bottom:1px}
+.sub{color:var(--ink2);font-size:13.5px}
+.sub code{background:#eceff4;padding:1px 6px;border-radius:4px;font-size:12.5px;color:var(--ink2)}
+
+/* 数字卡 */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:30px 0 8px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 16px}
+.stat .n{font-size:34px;font-weight:700;line-height:1.1;letter-spacing:-.02em}
+.stat .t{font-size:12.5px;color:var(--ink2);margin-top:6px}
+.stat.s-total .n{color:var(--ink)}
+.stat.s-worth .n{color:var(--green)}
+.stat.s-depends .n{color:var(--amber)}
+.stat.s-skip .n{color:var(--red)}
+
+/* 分组 */
+.group{margin-top:38px}
+.group-head{display:flex;align-items:baseline;gap:10px;margin-bottom:9px}
+.group-head h2{font-size:17px;font-weight:700}
+.group-head .cnt{font-size:13px;color:var(--ink3)}
+.group-note{font-size:13px;color:var(--ink2);margin-bottom:14px;line-height:1.6}
+
+/* skill 卡 */
+.item{
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:16px 18px;margin-bottom:10px;
+}
+.item.is-skip{border-left:3px solid var(--red)}
+.item.is-depends{border-left:3px solid var(--amber)}
+.item.is-worth{border-left:3px solid var(--green)}
+.item-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.item-name{font-weight:650;font-size:15.5px;letter-spacing:-.01em}
+.badge{
+  font-size:11.5px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap;
+}
+.badge.b-skip{background:var(--red-bg);color:var(--red)}
+.badge.b-depends{background:var(--amber-bg);color:var(--amber)}
+.badge.b-worth{background:var(--green-bg);color:var(--green)}
+.badge.b-src{background:#eef1f6;color:var(--ink2);font-weight:500}
+.score{margin-left:auto;font-size:12.5px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.score b{color:var(--ink);font-size:15px}
+.headline{font-size:14px;color:var(--ink2);margin-top:7px}
+.reasons{margin:9px 0 0;padding-left:0;list-style:none}
+.reasons li{
+  font-size:13px;color:var(--ink2);padding-left:15px;position:relative;margin-top:4px;
+}
+.reasons li::before{
+  content:"";position:absolute;left:3px;top:9px;width:4px;height:4px;
+  border-radius:50%;background:var(--ink3);
+}
+details{margin-top:10px}
+summary{
+  font-size:12.5px;color:var(--blue);cursor:pointer;user-select:none;
+  list-style:none;display:inline-block;
+}
+summary::-webkit-details-marker{display:none}
+summary::after{content:" ▾";font-size:10px}
+details[open] summary::after{content:" ▴"}
+.ev{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px}
+.ev div{display:flex;gap:10px;font-size:12.5px;padding:2px 0}
+.ev dt{color:var(--ink3);min-width:78px;flex:0 0 auto}
+.ev dd{color:var(--ink2);word-break:break-all}
+
+/* 市集观察 */
+.market{
+  margin:26px 0 6px;background:#1b1f27;color:#e8ecf3;border-radius:14px;
+  padding:26px 26px 22px;
+}
+.market .m-tag{
+  font-size:11.5px;letter-spacing:.14em;color:#7da2f5;font-weight:700;
+  text-transform:uppercase;margin-bottom:12px;
+}
+.market .m-big{font-size:20px;line-height:1.55;font-weight:600;letter-spacing:-.01em}
+.market .m-big em{font-style:normal;color:#ffcf4a}
+.market .m-note{font-size:13px;color:#9aa4b5;margin-top:11px;line-height:1.7}
+.market .m-note b{color:#fff}
+.market details{margin-top:14px}
+.market summary{color:#7da2f5}
+.market .m-list{margin-top:10px;border-top:1px solid #2c323d;padding-top:10px}
+.market .m-row{
+  display:flex;gap:10px;align-items:baseline;font-size:13px;padding:5px 0;
+  border-bottom:1px solid #23282f;
+}
+.market .m-row:last-child{border-bottom:0}
+.market .m-row .n{flex:1;color:#dfe4ec}
+.market .m-row .v{color:#ffcf4a;font-variant-numeric:tabular-nums;font-size:12.5px}
+.market .m-row .w{color:#8b95a6;font-size:12px;flex:2;text-align:right}
+.market .m-disc{font-size:11.5px;color:#6b7482;margin-top:12px;line-height:1.65}
+.market .m-insight{
+  font-size:13px;color:#dfe4ec;margin-top:12px;padding:11px 13px;
+  background:#232935;border-left:3px solid #ffcf4a;border-radius:0 8px 8px 0;line-height:1.65;
+}
+
+/* 底部 */
+.foot{
+  margin-top:44px;padding-top:22px;border-top:1px solid var(--line);
+  font-size:13px;color:var(--ink2);line-height:1.75;
+}
+.foot h3{font-size:13.5px;color:var(--ink);margin-bottom:7px}
+.foot .rule{
+  background:var(--card);border:1px solid var(--line);border-radius:10px;
+  padding:15px 17px;margin-bottom:14px;
+}
+.foot .rule b{color:var(--ink)}
+.stamp{font-size:12px;color:var(--ink3);margin-top:18px;display:flex;gap:14px;flex-wrap:wrap}
+
+@media (max-width:640px){
+  body{padding:26px 14px 60px}
+  h1{font-size:23px}
+  .stats{grid-template-columns:repeat(2,1fr);gap:9px}
+  .stat{padding:14px 13px}
+  .stat .n{font-size:27px}
+  .score{margin-left:0;width:100%;margin-top:4px}
+}
+@media print{
+  body{background:#fff;padding:0}
+  .item,.stat,.foot .rule{break-inside:avoid}
+  details{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Skill 值不值得装</div>
+  <h1 id="title"></h1>
+  <p class="sub" id="subtitle"></p>
+
+  <div class="stats" id="stats"></div>
+
+  <div id="market"></div>
+
+  <div id="groups"></div>
+
+  <div class="foot">
+    <div class="rule">
+      <h3>怎么判的</h3>
+      只看一件事：<b>它声称的功能，有没有对应的东西在支撑</b>。<br>
+      有能跑的代码，算过；只有一份文档但步骤、清单、示例写全，也算过——<b>没有代码不等于没用</b>。<br>
+      真正扣分的是三种：说要做某件事却没有实现、通篇套模板的空话、自己承认还没写完。
+    </div>
+    <div class="rule">
+      <h3>分数怎么来的</h3>
+      五个维度加权：<b>实质功能 40</b>（有没有真东西）、<b>宣称为实 25</b>（说的和做的一致吗）、
+      <b>说明清楚 15</b>（一句话说清用途吗）、<b>安全 10</b>（有没有危险操作）、<b>维护 10</b>（结构是否完整）。<br>
+      60 分以下基本不用考虑；60–69 属于能用但有明显短板。
+    </div>
+    <div class="stamp" id="stamp"></div>
+  </div>
+</div>
+
+<script id="REPORT" type="application/json">__REPORT_JSON__</script>
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('REPORT').textContent);
+  var T = D.totals || {};
+  var S = D.skills || [];
+
+  // 顶部一句话
+  var title = document.getElementById('title');
+  if (D.mode === 'target' && S.length === 1) {
+    var one = S[0];
+    var tail = one.verdict === 'worth'
+      ? '这个可以装。'
+      : (one.verdict === 'depends'
+          ? '这个看你要什么——它能用，但别期待太多。'
+          : '这个<em>建议别装</em>。');
+    title.innerHTML = '<em>' + esc(one.name) + '</em> 值不值得装？' + tail;
+  } else {
+    var emptyN = T.emptyCoded || 0;
+    var skipN = T.skip || 0;
+    var midN = T.depends || 0;
+    var tail2 = skipN > 0
+      ? '其中 <em>' + skipN + ' 个</em>建议卸掉。'
+      : (midN > 0 ? '其中 <em>' + midN + ' 个</em>要看你怎么用。' : '没有发现空壳。');
+    title.innerHTML = '你装了 ' + T.count + ' 个 skill，' + tail2;
+  }
+
+  document.getElementById('subtitle').innerHTML =
+    '扫描位置 <code>' + esc(tail(D.skillsDir)) + '</code>　·　' + esc(D.generatedAt || '');
+
+  // 数字卡
+  var stats = [
+    {k:'s-total',   n:T.count,   t:'已装 skill'},
+    {k:'s-worth',   n:T.worth,   t:'值得装'},
+    {k:'s-depends', n:T.depends, t:'看你要什么'},
+    {k:'s-skip',    n:T.skip,    t:'别装'}
+  ];
+  document.getElementById('stats').innerHTML = stats.map(function(s){
+    return '<div class="stat ' + s.k + '"><div class="n">' + (s.n||0) + '</div><div class="t">' + s.t + '</div></div>';
+  }).join('');
+
+  // 市集观察
+  renderMarket();
+
+  function renderMarket(){
+    var m = D.market;
+    if (!m || !m.scanned) return;
+    var pct = Math.round(m.skip * 100 / m.scanned);
+    var list = (m.skipList || []).map(function(x){
+      return '<div class="m-row"><span class="n">' + esc(x.name) + '</span>' +
+             '<span class="v">' + fmt(x.installs) + ' 次安装</span>' +
+             '<span class="w">' + esc((x.why||'').slice(0,40)) + '</span></div>';
+    }).join('');
+    // 如果空壳集中在同一批镜像同步，点出这个共性
+    var hubN = (m.skipList || []).filter(function(x){
+      return String(x.canonicalName||'').indexOf('clawhub_') >= 0;
+    }).length;
+    var insight = (hubN >= 2 && m.skip >= 2)
+      ? '<div class="m-insight">被判「别装」的 ' + m.skip + ' 个里，有 ' + hubN +
+        ' 个来自同一批镜像同步，用的还是同一套写法——像是同一个模板批量生成的。</div>'
+      : '';
+    var body = '' +
+      '<div class="m-tag">市集观察 · ' + esc(m.sampledAt || '') + '</div>' +
+      '<div class="m-big">抽查市集上安装量最高的 ' + m.scanned + ' 个 skill，' +
+      '<br>其中 <em>' + m.skip + ' 个</em>（' + pct + '%）装上之后做不到自己说的事。</div>' +
+      '<div class="m-note">这批 skill 合计被安装 <b>' + fmt(m.totalInstalls) + '</b> 次；' +
+      '其中被判「别装」的那 ' + m.skip + ' 个，占了 <b>' + fmt(m.skipInstalls) + '</b> 次。</div>' +
+      (list ? '<details><summary>看是哪几个</summary><div class="m-list">' + list + '</div></details>' : '') +
+      insight +
+      '<div class="m-disc">口径说明：以上按市集当前可下载的包逐一实测（静态检查，不执行代码）。' +
+      '同一个名字可能有多个发布者、或版本内容已变动，结论只代表本次下载到的那份。</div>';
+    document.getElementById('market').innerHTML = '<div class="market">' + body + '</div>';
+  }
+
+  function fmt(n){
+    if (!n) return '0';
+    if (n >= 10000) return (n/10000).toFixed(1).replace('.0','') + ' 万';
+    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  // 分组
+  var groups = [
+    {v:'skip',    h:'别装',        note:'它们声称能做的事，找不到对应的实现。装上去多半是占位。'},
+    {v:'depends', h:'看你要什么',  note:'不是空壳，但也有明显短板——适合特定场景，别指望万能。'},
+    {v:'worth',   h:'值得装',      note:'有实际功能，而且说得清自己做什么。'}
+  ];
+  var html = '';
+  groups.forEach(function(g){
+    var list = S.filter(function(x){ return x.verdict === g.v; })
+                .sort(function(a,b){ return a.score - b.score; });
+    if (!list.length) return;
+    html += '<div class="group"><div class="group-head"><h2>' + g.h +
+            '</h2><span class="cnt">' + list.length + ' 个</span></div>' +
+            '<div class="group-note">' + g.note + '</div>' +
+            list.map(function(s){ return card(s, g.v); }).join('') + '</div>';
+  });
+  document.getElementById('groups').innerHTML = html;
+
+  document.getElementById('stamp').innerHTML =
+    '<span>共 ' + (T.count||0) + ' 个</span>' +
+    '<span>市集安装 ' + (T.market||0) + '　本地自建 ' + (T.local||0) + '</span>' +
+    '<span>代码合计 ' + ((T.codeLines||0).toLocaleString()) + ' 行</span>';
+
+  function card(s, v){
+    var badgeCls = 'b-' + v;
+    var vtext = v === 'skip' ? '别装' : (v === 'depends' ? '看你要什么' : '值得装');
+    var src = s.source === 'market' ? '市集' : '自建';
+    var reasons = (s.reasons||[]).slice(0,4).map(function(r){
+      return '<li>' + esc(r) + '</li>';
+    }).join('');
+    var ev = (s.evidence||[]).map(function(e){
+      return '<div><dt>' + esc(e.label) + '</dt><dd>' + esc(e.value) + '</dd></div>';
+    }).join('');
+    return '<div class="item is-' + v + '">' +
+      '<div class="item-top">' +
+        '<span class="item-name">' + esc(s.name) + '</span>' +
+        '<span class="badge ' + badgeCls + '">' + vtext + '</span>' +
+        '<span class="badge b-src">' + src + '</span>' +
+        '<span class="score">评分 <b>' + s.score + '</b>/100</span>' +
+      '</div>' +
+      '<div class="headline">' + esc(s.headline) + '</div>' +
+      (reasons ? '<ul class="reasons">' + reasons + '</ul>' : '') +
+      (ev ? '<details><summary>看证据</summary><dl class="ev">' + ev + '</dl></details>' : '') +
+    '</div>';
+  }
+
+  function esc(x){
+    return String(x == null ? '' : x)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+  // 只显示路径末两段，避免暴露完整目录
+  function tail(p){
+    if (!p) return '';
+    var parts = String(p).replace(/\\/g,'/').split('/').filter(Boolean);
+    return '…/' + parts.slice(-2).join('/');
+  }
+})();
+</script>
+</body>
+</html>
