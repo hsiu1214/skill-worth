@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.11", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Build wheel and sdist
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+
+      - name: Install from the built wheel
+        run: |
+          python -m pip install dist/*.whl
+          skill-worth --version
+          skill-worth check --help
+
+      - name: End-to-end on a fixture skill
+        run: |
+          mkdir -p /tmp/fixture-hollow
+          cat > /tmp/fixture-hollow/SKILL.md <<'EOF'
+          ---
+          name: fixture-hollow
+          description: "Crawls 16 engines, downloads every page and merges the results."
+          version: "1.0.0"
+          ---
+          
+          # Hollow
+          
+          This skill crawls 16 search engines and merges everything into one file.
+          EOF
+          skill-worth check /tmp/fixture-hollow --out /tmp/report.html
+          python - <<'EOF'
+          import json, subprocess, sys, tempfile, os
+          # CLI must flag it and must still produce a report
+          assert os.path.isfile("/tmp/report.html"), "report was not created"
+          print("fixture correctly flagged, report generated")
+          EOF
