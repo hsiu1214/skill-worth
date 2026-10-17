@@ -53,8 +53,10 @@
 ## 安装
 
 ```bash
-pip install skill-worth
+pip install git+https://github.com/hsiu1214/skill-worth.git
 ```
+
+> 还没上 PyPI，直接从仓库装。
 
 零依赖，Python 3.8+。
 

@@ -53,8 +53,10 @@ Getting this wrong in either direction makes the tool useless. The scanner was t
 ## Install
 
 ```bash
-pip install skill-worth
+pip install git+https://github.com/hsiu1214/skill-worth.git
 ```
+
+> Not on PyPI yet — install straight from the repo.
 
 No dependencies. Python 3.8+.
 
