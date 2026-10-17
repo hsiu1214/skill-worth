@@ -27,9 +27,10 @@ import argparse
 import subprocess
 from datetime import datetime
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-from scan import scan_one  # 复用同一套判定，保证口径一致
+try:
+    from .scan import scan_one  # 复用同一套判定，保证口径一致
+except ImportError:  # 直接跑单文件时
+    from scan import scan_one
 
 API_TOP = "https://lightmake.site/api/skills/top"
 API_CAT = "https://lightmake.site/api/skills?category=%s&sortBy=score&order=desc"
@@ -91,15 +92,8 @@ def fetch_pool(verbose=True):
     return list(pool.values())
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--top", type=int, default=20, help="抽样前 N 个（按榜单顺序）")
-    ap.add_argument("--min-installs", type=int, default=1000,
-                    help="只看安装量不低于此值的（0 表示不过滤）")
-    ap.add_argument("--out", default=None, help="统计结果写到文件")
-    ap.add_argument("--keep", action="store_true", help="保留下载的包")
-    args = ap.parse_args()
-
+def run(top=20, min_installs=1000, out=None, keep=False):
+    """抽样检查市集热门 skill。返回退出码。"""
     items = fetch_pool()
     if not items:
         print("拿不到市集榜单，可能网络问题")
@@ -110,14 +104,14 @@ def main():
     picked = []
     for it in items:
         ins = it.get("installs") or 0
-        if args.min_installs and ins < args.min_installs:
+        if min_installs and ins < min_installs:
             continue
         picked.append(it)
-        if len(picked) >= args.top:
+        if len(picked) >= top:
             break
 
     print("池子共 %d 个，按条件筛出 %d 个（安装量 ≥ %s）"
-          % (len(items), len(picked), args.min_installs))
+          % (len(items), len(picked), min_installs))
     if not picked:
         print("没有符合条件的 skill。试试调低 --min-installs")
         return 2
@@ -199,18 +193,29 @@ def main():
         print("空壳比例：%.0f%%（这批合计安装 %s 次，其中空壳占 %s 次）"
               % (pct, f'{stat["totalInstalls"]:,}', f'{stat["skipInstalls"]:,}'))
 
-    if args.out:
-        with io.open(args.out, "w", encoding="utf-8") as f:
+    if out:
+        with io.open(out, "w", encoding="utf-8") as f:
             f.write(json.dumps(stat, ensure_ascii=False, indent=1))
-        print("OK -> %s" % args.out)
+        print("OK -> %s" % out)
 
-    if args.keep:
+    if keep:
         print("下载的包保留在: %s" % work)
     else:
         shutil.rmtree(work, ignore_errors=True)
         print("临时目录已清理")
 
     return 0
+
+
+def main():
+    ap = argparse.ArgumentParser(description="抽样检查市集热门 skill")
+    ap.add_argument("--top", type=int, default=20, help="抽样前 N 个（按安装量）")
+    ap.add_argument("--min-installs", type=int, default=1000,
+                    help="只看安装量不低于此值的（0 表示不过滤）")
+    ap.add_argument("--out", default=None, help="统计结果写到文件")
+    ap.add_argument("--keep", action="store_true", help="保留下载的包")
+    a = ap.parse_args()
+    return run(top=a.top, min_installs=a.min_installs, out=a.out, keep=a.keep)
 
 
 if __name__ == "__main__":

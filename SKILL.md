@@ -21,28 +21,35 @@ version: "1.0.0"
 
 ## 怎么用
 
-**评估一个还没装的 skill**（先把它的目录放到本地任意位置）：
-
 ```bash
-python scripts/scan.py --target /path/to/some-skill --out sk.json
-python scripts/render.py sk.json report.html
+pip install skill-worth
 ```
 
-**盘点已经装好的全部 skill**：
+**评估一个还没装的 skill**：
 
 ```bash
-python scripts/scan.py --all --out sk.json
-python scripts/render.py sk.json report.html
+skill-worth check /path/to/some-skill
 ```
 
-**给报告加一节市集观察**（可选，会下载并实测一批热门 skill，约 40 秒）：
+**盘点已经装好的全部 skill**（自动找 WorkBuddy / Claude Code / Codex 等常见目录）：
 
 ```bash
-python scripts/market.py --top 30 --min-installs 500 --out market.json
-python scripts/render.py sk.json report.html --market market.json
+skill-worth check
 ```
 
-生成的 `report.html` 直接双击就能看，也可以发给别人。
+**顺便看看市集整体情况**（会下载并实测一批热门 skill，需要网络）：
+
+```bash
+skill-worth market --top 30
+```
+
+跑完会在当前目录生成 `skill-worth-report.html`，双击就能看。加 `--open` 直接打开，加 `--json out.json` 另存原始数据。
+
+不想装包也能直接跑源码：
+
+```bash
+python -m skill_worth check /path/to/skill
+```
 
 ## 结果怎么读
 

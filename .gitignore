@@ -19,3 +19,8 @@ Thumbs.db
 
 # 临时的下载目录
 _work/
+
+# 构建产物
+dist/
+build/
+*.egg-info/

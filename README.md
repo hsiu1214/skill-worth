@@ -52,37 +52,41 @@ Getting this wrong in either direction makes the tool useless. The scanner was t
 
 ## Install
 
-No dependencies. Python 3.8+.
-
 ```bash
-git clone https://github.com/hsiu1214/skill-worth.git
-cd skill-worth
+pip install skill-worth
 ```
+
+No dependencies. Python 3.8+.
 
 ## Use
 
 **Evaluate one skill before installing:**
 
 ```bash
-python scripts/scan.py --target /path/to/some-skill --out sk.json
-python scripts/render.py sk.json report.html
+skill-worth check /path/to/some-skill
 ```
 
-**Audit everything you have installed:**
+**Audit everything you have installed** (auto-detects WorkBuddy, Claude Code, Codex, Cursor, Windsurf):
 
 ```bash
-python scripts/scan.py --all --out sk.json
-python scripts/render.py sk.json report.html
+skill-worth check
 ```
 
 **Sample the marketplace** (downloads and inspects top skills, ~40s for 30):
 
 ```bash
-python scripts/market.py --top 30 --min-installs 500 --out market.json
-python scripts/render.py sk.json report.html --market market.json
+skill-worth market --top 30
 ```
 
+Each run writes `skill-worth-report.html` to the current directory. `--open` opens it when done; `--json out.json` also saves the raw data.
+
 Output is a single self-contained HTML file — no CDN, no JS framework, opens offline, prints cleanly, readable on a phone.
+
+Or run from source without installing:
+
+```bash
+python -m skill_worth check ./some-skill
+```
 
 ## What the output looks like
 

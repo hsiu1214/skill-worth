@@ -52,37 +52,41 @@
 
 ## 安装
 
-零依赖，Python 3.8+。
-
 ```bash
-git clone https://github.com/hsiu1214/skill-worth.git
-cd skill-worth
+pip install skill-worth
 ```
+
+零依赖，Python 3.8+。
 
 ## 用法
 
 **装之前，评估一个 skill：**
 
 ```bash
-python scripts/scan.py --target /path/to/some-skill --out sk.json
-python scripts/render.py sk.json report.html
+skill-worth check /path/to/some-skill
 ```
 
-**盘点已经装好的全部：**
+**盘点已经装好的全部**（自动找 WorkBuddy / Claude Code / Codex / Cursor / Windsurf 的目录）：
 
 ```bash
-python scripts/scan.py --all --out sk.json
-python scripts/render.py sk.json report.html
+skill-worth check
 ```
 
 **抽样看市集整体情况**（会下载并实测热门 skill，30 个约 40 秒）：
 
 ```bash
-python scripts/market.py --top 30 --min-installs 500 --out market.json
-python scripts/render.py sk.json report.html --market market.json
+skill-worth market --top 30
 ```
 
+每次运行都会在当前目录生成 `skill-worth-report.html`。加 `--open` 跑完自动打开，加 `--json out.json` 另存原始数据。
+
 输出是一份自包含的 HTML——不引 CDN、不用框架、离线可开、能直接打印、手机上也看得清。
+
+不装包也能直接跑源码：
+
+```bash
+python -m skill_worth check ./some-skill
+```
 
 ## 结果长什么样
 

@@ -411,35 +411,33 @@ def scan_one(d):
     }
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--all", action="store_true", help="扫描全部已安装 skill")
-    ap.add_argument("--target", default=None, help="只扫一个目录（装前评估）")
-    ap.add_argument("--dir", default=None, help="指定 skills 根目录")
-    ap.add_argument("--out", default=None, help="把 JSON 写到文件")
-    args = ap.parse_args()
+# 常见的 skill 存放位置（不限于某一个平台）
+CANDIDATE_DIRS = [
+    "~/.workbuddy/skills",
+    "~/.claude/skills",
+    "~/.codex/skills",
+    "~/.codeium/windsurf/skills",
+    "~/.cursor/skills",
+    "~/.config/claude/skills",
+    "~/.config/opencode/skills",
+    "~/Library/Application Support/Claude/skills",
+]
 
-    root = args.dir or os.path.expanduser(r"~\.workbuddy\skills")
-    results = []
 
-    if args.target:
-        r = scan_one(args.target)
-        if r is None:
-            print(json.dumps({"error": "目录里没有 SKILL.md：%s" % args.target},
-                             ensure_ascii=False))
-            return 2
-        results.append(r)
-    else:
-        if not os.path.isdir(root):
-            print(json.dumps({"error": "找不到目录：%s" % root}, ensure_ascii=False))
-            return 2
-        for n in sorted(os.listdir(root)):
-            d = os.path.join(root, n)
-            if os.path.isdir(d):
-                r = scan_one(d)
-                if r:
-                    results.append(r)
+def discover_dirs():
+    """找出现存的所有 skill 目录"""
+    out = []
+    seen = set()
+    for c in CANDIDATE_DIRS:
+        p = os.path.expanduser(c)
+        rp = os.path.realpath(p)
+        if os.path.isdir(p) and rp not in seen:
+            seen.add(rp)
+            out.append(p)
+    return out
 
+
+def build_payload(results, mode, label):
     totals = {
         "count": len(results),
         "worth": sum(1 for r in results if r["verdict"] == "worth"),
@@ -450,20 +448,69 @@ def main():
         "codeLines": sum(r["codeLines"] for r in results),
         "emptyCoded": sum(1 for r in results if r["codeFiles"] == 0),
     }
-
-    payload = {
+    return {
         "generatedAt": datetime.now().strftime("%Y-%m-%d %H:%M"),
-        "mode": "target" if args.target else "all",
-        "skillsDir": args.target or root,
+        "mode": mode,
+        "skillsDir": label,
         "totals": totals,
         "skills": results,
     }
-    text = json.dumps(payload, ensure_ascii=False, indent=1)
 
+
+def scan_target(path):
+    """评估单个 skill 目录，返回 payload；没有 SKILL.md 返回 None"""
+    r = scan_one(path)
+    if r is None:
+        return None
+    return build_payload([r], "target", path)
+
+
+def scan_dirs(roots=None):
+    """扫描一个或多个 skills 根目录，同名去重。返回 payload"""
+    roots = roots or discover_dirs()
+    seen, results = set(), []
+    for root in roots:
+        if not os.path.isdir(root):
+            continue
+        for n in sorted(os.listdir(root)):
+            d = os.path.join(root, n)
+            if not os.path.isdir(d) or n.lower() in seen:
+                continue
+            r = scan_one(d)
+            if r:
+                seen.add(n.lower())
+                results.append(r)
+    return build_payload(results, "all", "、".join(roots)), roots
+
+
+def main():
+    ap = argparse.ArgumentParser(description="扫描 skill，判断值不值得装")
+    ap.add_argument("--all", action="store_true", help="扫描全部已安装 skill")
+    ap.add_argument("--target", default=None, help="只扫一个目录（装前评估）")
+    ap.add_argument("--dir", default=None, help="指定 skills 根目录")
+    ap.add_argument("--out", default=None, help="把 JSON 写到文件")
+    args = ap.parse_args()
+
+    if args.target:
+        payload = scan_target(args.target)
+        if payload is None:
+            print(json.dumps({"error": "目录里没有 SKILL.md：%s" % args.target},
+                             ensure_ascii=False))
+            return 2
+    else:
+        payload, roots = scan_dirs([args.dir] if args.dir else None)
+        if not roots:
+            print(json.dumps({
+                "error": "没找到 skill 目录，请用 --dir 指定",
+                "searched": [os.path.expanduser(c) for c in CANDIDATE_DIRS],
+            }, ensure_ascii=False))
+            return 2
+
+    text = json.dumps(payload, ensure_ascii=False, indent=1)
     if args.out:
         with io.open(args.out, "w", encoding="utf-8") as f:
             f.write(text)
-        print("OK -> %s（%d 个 skill）" % (args.out, len(results)))
+        print("OK -> %s（%d 个 skill）" % (args.out, len(payload["skills"])))
     else:
         print(text)
     return 0
