@@ -90,6 +90,34 @@ Or run from source without installing:
 python -m skill_worth check ./some-skill
 ```
 
+## Use as a GitHub Action
+
+Gate a skill repo in CI — the build fails when a skill does nothing:
+
+```yaml
+- uses: hsiu1214/skill-worth@v1
+  with:
+    path: ./skills
+    fail-on: skip        # never | skip | depends
+```
+
+It writes a summary table straight into the job summary, so the failure explains itself without opening logs.
+
+Outputs: `total`, `worth`, `skip`, `report`, `json`.
+
+Keep the HTML report as an artifact if you want it:
+
+```yaml
+- uses: hsiu1214/skill-worth@v1
+  with:
+    path: ./skills
+- uses: actions/upload-artifact@v4
+  if: always()
+  with:
+    name: skill-worth-report
+    path: skill-worth-report.html
+```
+
 ## What the output looks like
 
 Three verdicts, each with human-readable reasons and expandable evidence:

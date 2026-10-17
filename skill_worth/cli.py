@@ -37,7 +37,20 @@ def cmd_check(args):
         if not os.path.isdir(target):
             print("error: not a directory: %s" % target, file=sys.stderr)
             return 2
-        payload = scan_mod.scan_target(target)
+        # 自己就是一个 skill，还是「装了一堆 skill 的目录」？
+        if os.path.isfile(os.path.join(target, "SKILL.md")):
+            payload = scan_mod.scan_target(target)
+        else:
+            has_sub = any(
+                os.path.isfile(os.path.join(target, n, "SKILL.md"))
+                for n in os.listdir(target)
+                if os.path.isdir(os.path.join(target, n))
+            )
+            if not has_sub:
+                print("error: no SKILL.md here, and no sub-folder contains one: %s"
+                      % target, file=sys.stderr)
+                return 2
+            payload, _ = scan_mod.scan_dirs([target])
         if payload is None:
             print("error: no SKILL.md in %s" % target, file=sys.stderr)
             return 2
@@ -97,6 +110,14 @@ def cmd_check(args):
             print("  opened in browser")
         except Exception:
             pass
+
+    # CI gate
+    if args.fail_on == "skip" and t["skip"] > 0:
+        print("  gate: %d skill(s) judged 'skip' -> failing" % t["skip"])
+        return 1
+    if args.fail_on == "depends" and (t["skip"] + t["depends"]) > 0:
+        print("  gate: %d skill(s) below 'worth' -> failing" % (t["skip"] + t["depends"]))
+        return 1
     return 0
 
 
@@ -121,6 +142,8 @@ def build_parser():
     c.add_argument("--out", default=None, help="report path (default ./skill-worth-report.html)")
     c.add_argument("--json", default=None, help="also save raw JSON here")
     c.add_argument("--open", action="store_true", help="open the report when done")
+    c.add_argument("--fail-on", choices=["never", "skip", "depends"], default="never",
+                   help="exit non-zero when this verdict appears (for CI); default never")
     c.set_defaults(func=cmd_check)
 
     m = sub.add_parser("market", help="sample top marketplace skills")

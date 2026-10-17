@@ -90,6 +90,34 @@ skill-worth market --top 30
 python -m skill_worth check ./some-skill
 ```
 
+## 当作 GitHub Action 用
+
+放进 CI 当门禁——有空的 skill 就让构建失败：
+
+```yaml
+- uses: hsiu1214/skill-worth@v1
+  with:
+    path: ./skills
+    fail-on: skip        # never | skip | depends
+```
+
+它会往 job summary 里写一张表，失败原因自己就说清楚了，不用点开日志翻。
+
+输出：`total`、`worth`、`skip`、`report`、`json`。
+
+想把 HTML 报告留下来：
+
+```yaml
+- uses: hsiu1214/skill-worth@v1
+  with:
+    path: ./skills
+- uses: actions/upload-artifact@v4
+  if: always()
+  with:
+    name: skill-worth-report
+    path: skill-worth-report.html
+```
+
 ## 结果长什么样
 
 三档，每档都带人话理由和可展开的证据：
