@@ -2,7 +2,7 @@
 
 **Does this AI agent skill actually do what it claims?**
 
-[中文说明](README.zh-CN.md) · [Report sample](examples/report-sample.html)
+[中文说明](README.zh-CN.md) · [Report sample](examples/report-sample.html) · **[The Empty Skill Problem](docs/empty-skills.md)** — what 30 popular skills look like inside
 
 ---
 

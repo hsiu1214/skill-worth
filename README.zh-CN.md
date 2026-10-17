@@ -2,7 +2,7 @@
 
 **这个 AI 技能，到底值不值得装？**
 
-[English](README.md) · [报告样例](examples/report-sample.html)
+[English](README.md) · [报告样例](examples/report-sample.html) · **[AI 技能市场里的空壳](docs/empty-skills.zh-CN.md)** — 30 个热门 skill 打开来长什么样
 
 ---
 
