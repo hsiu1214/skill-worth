@@ -9,7 +9,7 @@ unimplemented claims, dead file references.
     print(payload["totals"])
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __all__ = ["scan_target", "scan_dirs", "scan_one", "render_report", "run_market"]
 
 from .scan import scan_target, scan_dirs, scan_one  # noqa: E402

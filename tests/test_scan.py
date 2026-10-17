@@ -118,5 +118,34 @@ Run `python scripts/count.py <dir>` to count lines.
                             "a complete prose protocol must not be rejected: %s" % r["reasons"])
 
 
+    def test_host_specific_tool_name_not_fatal(self):
+        """工具名与宿主不一致，不该单独判死
+
+        WorkBuddy 的抓取工具叫 WebFetch，别的宿主可能就叫 web_fetch。
+        同一份文档换个环境跑就应该还是好的——所以这条只能是提示。
+        """
+        body = ["---", "name: host-tools",
+                'description: "A review checklist for web content, with worked '
+                'examples showing how to fetch and read a page."',
+                'version: "1.0.0"', "---", "", "# Host tools", "",
+                "## Steps", ""]
+        body += ["%d. Fetch the page, then check item %d against the checklist." % (i, i)
+                 for i in range(1, 6)]
+        body += ["", "## Checklist", "",
+                 "- confirm the page actually loaded", "- check the publish date",
+                 "- look for the original source", "- note any claims without evidence"]
+        body += ["", "```python", "web_fetch(url)", "```", ""]
+        body += ["## Notes", ""] + [
+            "This paragraph adds enough context for the document to be useful "
+            "rather than a stub, and is deliberately not short. "] * 12
+        d = self._make("host-tools", "\n".join(body))
+        r = scan_one(d)
+        self.assertNotEqual(r["verdict"], "skip",
+                            "a host-specific tool name must not be fatal: %s" % r["reasons"])
+        # 但仍应被提示出来
+        self.assertTrue(any("工具名" in x for x in r["reasons"]),
+                        "should still surface the tool-name note: %s" % r["reasons"])
+
+
 if __name__ == "__main__":
     unittest.main()

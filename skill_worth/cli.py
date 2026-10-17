@@ -13,6 +13,7 @@ import argparse
 import tempfile
 import webbrowser
 
+from . import __version__
 from . import scan as scan_mod
 from .render import render as render_report
 
@@ -133,7 +134,7 @@ def build_parser():
         description="Does this AI agent skill actually do what it claims? "
                     "Static analysis for skills that are safe but empty.",
     )
-    ap.add_argument("-V", "--version", action="version", version="skill-worth 1.0.0")
+    ap.add_argument("-V", "--version", action="version", version="skill-worth %s" % __version__)
     sub = ap.add_subparsers(dest="cmd")
 
     c = sub.add_parser("check", help="evaluate a skill, or audit everything installed")

@@ -32,12 +32,13 @@ Five weighted dimensions, 100 points:
 | **Safety** | 10 | Deletions, dynamic execution, hardcoded secrets |
 | **Maintenance** | 10 | Structure, template filler, dead references |
 
-**Four instant disqualifiers** (regardless of score):
+**Three instant disqualifiers** (regardless of score):
 
 1. The author admits it's unimplemented (`"details to be filled in at runtime"`)
-2. It teaches you to call a tool that doesn't exist (`web_fetch(...)` when the real one is `WebFetch`)
-3. It claims to *do* something (crawl, batch, call an API) with zero code files
-4. It has code files, but they're all `pass` / `TODO` / empty stubs
+2. It claims to *do* something (crawl, batch, call an API) with zero code files
+3. It has code files, but they're all `pass` / `TODO` / empty stubs
+
+One thing that looks disqualifying but isn't: a tool name that doesn't match your host. The same fetch capability is `WebFetch` in one agent and `web_fetch` in another. Treating that as fatal would wrongly reject valid skills on other platforms, so it's reported as a note instead.
 
 ## The hard part: no code ≠ useless
 
@@ -134,7 +135,7 @@ Absolute paths and namespaces are stripped before the report is written. Verifie
 
 | Skill | Installs | Verdict |
 |---|---|---|
-| `multi-search-engine` | 2.04M | **skip** — claims 16 engines, zero scripts, teaches a nonexistent tool |
+| `multi-search-engine` | 2.04M | **skip** — claims 16 engines, zero scripts |
 | `summarize` | 46K | **skip** — 3.5KB, author admits it's auto-generated scaffolding |
 | `skill-vetter` | 307K (real version) | **worth** — 140 lines of prose, but a complete 4-step protocol |
 | `self-improving-agent` | 86K | **worth** — 5 real code files, hook is memory-only, zero network |

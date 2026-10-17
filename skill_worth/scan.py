@@ -250,7 +250,7 @@ def score_skill(md, real_code, code_lines, code_files, refs, missing,
     if tw:
         s -= 2
     if ft:
-        s -= 5
+        s -= 2  # 工具名可能只是宿主差异，轻扣即可
     s = max(0, s)
     dims["maintain"] = {"score": s, "max": 10,
                         "why": "结构完整" if s >= 8 else "结构松散"}
@@ -324,15 +324,18 @@ def scan_one(d):
     if has_self_admit:
         hard_shell = True
         reasons.append("作者自己写明：操作细节还没实作")
-    if ft:
-        hard_shell = True
-        reasons.append("文件里教的是不存在的工具（%s）" % ft[0])
     if claims and not real_code:
         hard_shell = True
         reasons.append("说要做「%s」，但一个代码文件都没有" % "、".join(claims[:3]))
     if code_files and not real_code:
         hard_shell = True
         reasons.append("有 %d 个代码文件，但都是占位，没有实际实现" % len(code_files))
+
+    # 工具名是否「存在」取决于宿主环境（WorkBuddy 叫 WebFetch，别的宿主可能就叫
+    # web_fetch），所以只作提示，不参与硬判——曾经把它当一票否决，跨平台会误杀。
+    if ft:
+        reasons.append("文件里写的工具名（%s）在部分宿主不存在，换环境时要自己确认"
+                       % ft[0])
 
     score, dims = score_skill(md, real_code, code_lines, len(code_files), refs,
                               missing, desc, tcount, risks, has_self_admit,
